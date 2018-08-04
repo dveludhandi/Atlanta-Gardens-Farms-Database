@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css">
+  <link rel="stylesheet" href="https://v40.pingendo.com/assets/4.0.0/default/theme.css" type="text/css"> 
+  <script src="js/md5.min.js"></script>
+  <script>
+  // let payload = {
+  //  "email": "test2@harvard.edu",
+  //  "username": "testUser2",
+  //  "password": "shgshYYVSH7",
+  //  "type" : "Owner",
+  //  "property": "Test Garden",
+  //  "address": "555 Test Road",
+  //  "city": "Atlanta",
+  //  "zip": "30332",
+  //  "acres": 2,
+  //  "public": 1,
+  //  "commercial": 0,
+  //  "propType": "Farm",
+  //  "items" : [["Pig"], ["Peruvian Lily"]]
+  // }
+  var emailcomments = false;
+function validateEmail() {
+    console.log("validate email")
+    // this method is called when the user click out of the input box.
+	// check if the emial is a validate one on the client side. More checking should be done on the server side as well.
+	// generates a error message when the email address is not valid.
+    var x = document.getElementById("emailSignUp").value;
+    var atpos = x.indexOf("@");
+    var dotpos = x.lastIndexOf(".");
+    emailcomments = false;
+    if(document.getElementById("emailcomments")!= null){
+        emailcomments = true;
+    }
+    
+    
+    if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(x)))   {
+    	
+        var para = document.createElement("p");
+        var node = document.createTextNode("Not a valid e-mail address");
+        para.appendChild(node);
+        para.style.color = "red";
+        para.id = "emailcomments";
+        if (!emailcomments) {
+            $("input#emailSignUp").after(para);
+            emailcomments = true;
+            
+            
+        }
+      
+    }
+    else {
+    	
+
+        if (emailcomments) {
+            $("#emailcomments").remove();
+        }
+        emailval = false;
+    }
+
+}
+      function insertUser() {
+          if(emailcomments == true ){
+              window.alert("Invalid email");
+              return;
+          }
+          if (document.getElementById("password").value != document.getElementById("confirm_password").value) {
+              window.alert("passwords don't match fool");
+              return;
+          }
+
+          if (document.getElementById("password").value.length < 8) {
+              window.alert("password needs to be 8 characters");
+              return;
+          }
+
+          let payload = {
+            "email": document.getElementById("emailSignUp").value,
+            "username": document.getElementById("username").value,
+            "password": md5(document.getElementById("password").value),
+            "type" : "Visitor",
+            "property": "Test Garden",
+            "address": "555 Test Road",
+            "city": "Atlanta",
+            "zip": "30332",
+            "acres": 2,
+            "public": 1,
+            "commercial": 0,
+            "propType": "Farm",
+            "items" : [["Pig"], ["Peruvian Lily"]]
+          }
+
+
+          console.log(payload);
+
+          var xhr = new XMLHttpRequest();
+              xhr.onload = () => {
+                  var data = xhr.responseText;
+                  console.log("This is data" + data);
+
+                  if (data == "1") {
+                      window.location.href= "../login.html"
+                  } else {
+                      alert("email or username already used")
+                  }
+                }
+
+            xhr.open("POST", "http://localhost:3000/registration", true);
+            xhr.setRequestHeader("Content-Type", 'application/json');
+            xhr.send(JSON.stringify(payload));
+      }
+
+      function logout(){
+                console.log("Going back to log in page")
+                window.location.replace("../login.html")
+            }
+
+  </script>
+</head>
+<body>
+  <nav class="navbar navbar-expand-md bg-primary navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="fa d-inline fa-lg fa-cloud"></i>
+        <b>Atlanta Farm Orchard Garden Database</b>
+      </a>
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbar2SupportedContent" aria-controls="navbar2SupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+  </nav>
+  <div class="py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6" style="background-image: url('images/welcome.jpg');background-repeat:no-repeat;background-size:cover;"></div>
+        <div class="col-md-6">
+          <div style="font-size: 45px"> Welcome, New Vistor! ,
+            <br>
+            <a style="font-size: 15px">( </a>
+            <a style="font-size:15px;color:red">* </a>
+            <a style="font-size:15px">= required fields )</a>
+          </div>
+          <div class="row">
+            <div class="form-group col-md-6">
+              <input id="username" type="text" class="form-control" placeholder="*Username"> </div>
+            <div class="form-group">
+              <input id="emailSignUp" onblur="validateEmail()" type="email" class="form-control"placeholder="*Enter email"> </div>
+            <div class="form-group">
+              <input id="password" type="password" class="form-control" placeholder="*New password">
+              <input id="confirm_password" type="password" class="form-control" placeholder="*Confirm password"> </div>
+            <button type="submit" class="btn btn-primary" onclick="insertUser()">Create Account</button>
+            <button class="btn btn-secondary ml-2 text-white" onclick="logout()">
+           Cancel
+            </button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <img src="https://pingendo.com/site-assets/Pingendo_logo_big.png" class="d-block" alt="Pingendo logo" height="16">
+
+</body>
+
+</html>

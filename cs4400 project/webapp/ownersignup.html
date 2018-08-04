@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css">
+  <link rel="stylesheet" href="https://v40.pingendo.com/assets/4.0.0/default/theme.css" type="text/css">
+    <script src="js/md5.min.js"></script>
+    <script>
+        var emailcomments = false;
+function validateEmail() {
+    console.log("validate email")
+    // this method is called when the user click out of the input box.
+	// check if the emial is a validate one on the client side. More checking should be done on the server side as well.
+	// generates a error message when the email address is not valid.
+    var x = document.getElementById("emailSignUp").value;
+    var atpos = x.indexOf("@");
+    var dotpos = x.lastIndexOf(".");
+    emailcomments = false;
+    if(document.getElementById("emailcomments")!= null){
+        emailcomments = true;
+    }
+    
+    
+    if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(x)))   {
+    	
+        var para = document.createElement("p");
+        var node = document.createTextNode("Not a valid e-mail address");
+        para.appendChild(node);
+        para.style.color = "red";
+        para.id = "emailcomments";
+        if (!emailcomments) {
+            $("input#emailSignUp").after(para);
+            emailcomments = true;
+            
+            
+        }
+      
+    }
+    else {
+    	
+
+        if (emailcomments) {
+            $("#emailcomments").remove();
+        }
+        emailval = false;
+    }
+
+}
+      function addToDB() {
+          if(emailcomments == true){
+              alert("Invalid Email")
+              return;
+          }
+            if (document.getElementById("password").value != document.getElementById("confirm_password").value) {
+              window.alert("passwords don't match fool");
+              return;
+          }
+
+          if (document.getElementById("password").value.length < 8) {
+              window.alert("password needs to be 8 characters");
+              return;
+          }
+          items = [document.getElementById("crop_dropdown").value]
+
+          if (document.getElementById("type_dropdown").value == "Farm") {
+              items.push(document.getElementById("animal_dropdown").value);
+          }
+
+          let payload = {
+            "type" : "Owner",
+            "email":  document.getElementById("emailSignUp").value,
+            "password" : md5(document.getElementById("password").value),
+            "username":  document.getElementById("username").value,
+            "property": document.getElementById("propName").value,
+            "address": document.getElementById("address").value,
+            "city": document.getElementById("city").value,
+            "zip": document.getElementById("zip").value,
+            "acres": document.getElementById("acres").value,
+            "public": document.getElementById("public_dropdown").value,
+            "commercial": document.getElementById("commercial_dropdown").value,
+            "propType": document.getElementById("type_dropdown").value,
+            "items" : items
+          }
+
+          var allowRegis = true;
+          for (var key in payload) {
+              var obj = payload[key];
+              if (obj == null || obj == "") {
+                  allowRegis = false;
+              }
+              
+          }
+          
+          console.log(payload);
+          if (allowRegis) {
+              var xhr = new XMLHttpRequest();
+                xhr.onload = () => {
+                    var data = xhr.responseText;
+
+                    //console.log("This is data " + data);
+                    //propertyArray = JSON.parse(data);
+
+                    if (data == "1") {
+                        window.location.replace("loginhome.html");
+                        console.log("Completed");
+                    } else {
+                      console.log(data);
+                      alert("Something wrong, Try again")
+                      console.log("registration failed");
+                    }
+                }
+
+              xhr.open("POST", "http://localhost:3000/registration", true);
+              xhr.setRequestHeader("Content-Type", 'application/json');
+              xhr.send(JSON.stringify(payload));
+          } else {
+              alert("No fields can be blank, Try again")
+              //window.location.reload();
+          }
+          
+
+      }
+      
+      function logout(){
+            console.log("Going back to log in page")
+            window.location.replace("../login.html")
+          }
+
+      function editMenus() {
+          var type = document.getElementById("type_dropdown").value;
+          var animal_dropdown = document.getElementById("animal_dropdown");
+
+          animal_dropdown.style.display = "block";
+
+          if (type != "Farm") {
+              animal_dropdown.style.display = "none";
+          }
+
+          console.log(animal_dropdown);
+
+          getCrops(type); 
+      }
+
+      function getAnimals() {
+          let payload = {
+              "type": "animal",
+              "confirmed": 1
+          }
+
+          var xhr = new XMLHttpRequest();
+              xhr.onload = () => {
+              var data = xhr.responseText;
+
+              var animalArray = JSON.parse(data);
+              console.log("This is data" + animalArray);
+
+              // *******************************************************************
+              // ************* Move this when we figure out async stuff ************
+              // *******************************************************************
+              var animal_dropdown = document.getElementById("animal_dropdown");
+
+              for (var i = 0; i < animalArray.length; i++) {
+                var node = document.createElement("option");
+                node.text = animalArray[i].Name;
+                node.setAttribute("value", animalArray[i].Name);
+
+                animal_dropdown.add(node);
+              }
+
+              // *******************************************************************
+              // *********** End Move this *****************************************
+              // *******************************************************************
+
+              if (data != "1") {
+
+                  console.log(data);
+              } else {
+                  
+                  window.location.replace("webapp/loginhome.html");
+                  console.log("Completed");
+              }
+          }
+
+          xhr.open("POST", "http://localhost:3000/items", true);
+          xhr.setRequestHeader("Content-Type", 'application/json');
+          xhr.send(JSON.stringify(payload));
+      }
+
+      function getCrops(type) {
+         console.log("type = " + type)
+         let payload = {
+               "type": "crop",
+               "confirmed": 1
+            }
+         if(type == "Farm"){
+            payload = {
+               "type": "crop",
+               "confirmed": 1
+            }
+          } else if( type == "Orchard"){
+              payload = {
+               "type": "orchard",
+               "confirmed": 1
+            }
+          }
+          else if( type == "Garden"){
+              payload = {
+               "type": "garden",
+               "confirmed": 1
+            }
+          }
+          var xhr = new XMLHttpRequest();
+              xhr.onload = () => {
+              var data = xhr.responseText;
+              var cropArray = JSON.parse(data);
+              console.log("This is data" + cropArray);
+              // *******************************************************************
+              // ************* Move this when we figure out async stuff ************
+              // *******************************************************************
+              var crop_dropdown = document.getElementById("crop_dropdown");
+              crop_dropdown.options.length = 0;
+              for (var i = 0; i < cropArray.length; i++) {
+                var node = document.createElement("option");          
+                node.text = cropArray[i].Name;
+                node.setAttribute("value", cropArray[i].Name);
+                crop_dropdown.add(node);
+              }
+              // *******************************************************************
+              // *********** End Move this *****************************************
+              // *******************************************************************
+              if (data != "0") {
+                         //window.location.replace("webapp/loginhome.html");
+                  console.log("Completed");
+              }
+          }
+          xhr.open("POST", "http://localhost:3000/items", true);
+          xhr.setRequestHeader("Content-Type", 'application/json');
+          xhr.send(JSON.stringify(payload));
+      }
+
+      window.onload = function() {
+        // var payload = {
+  //  type = "animal" OR "crop"
+  //  confirmed = 1 OR 0
+  //}
+
+          getAnimals();
+          getCrops("Farm");
+      }
+  </script>
+
+
+    </head>
+
+<body>
+  <nav class="navbar navbar-expand-md bg-primary navbar-dark">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="fa d-inline fa-lg fa-cloud"></i>
+        <b>Atlanta Farm Orchard Garden Database</b>
+      </a>
+      <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbar2SupportedContent" aria-controls="navbar2SupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+    </div>
+  </nav>
+  <div class="py-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <div style="font-size: 45px"> Welcome, New Owner!
+            <br> Tell us about yourself!
+            <br>
+            <a style="font-size: 15px">( </a>
+            <a style="font-size:15px;color:red">* </a>
+            <a style="font-size:15px">= required fields )</a>
+          </div>
+
+            <div class="row">
+              <div class="form-group col-md-4">
+                <input id="username"  type="text" class="form-control" placeholder="*Username" > </div>
+              <div class="form-group col-md-4 ">
+                <input id="password" type="password" class="form-control" placeholder="*Password" > </div>
+                
+              <div class="form-group col-md-4 ">
+                <input id="confirm_password" type="password" class="form-control" placeholder="*Confirm Password" type="password"> </div>
+            </div>
+            <input type="email" onblur="validateEmail()" class="form-control" placeholder="*Enter email" id="emailSignUp">
+            <br>
+            <input id="propName" type="text" class="form-control" placeholder="*Property Name">
+            <br>
+            <input id="address" type="text" class="form-control" placeholder="*Street Address">
+            <br>
+            <div class="row">
+              <div class="form-group col-md-4">
+                <input id="city" type="text" class="form-control" placeholder="*City"> </div>
+              <div class="form-group col-md-4 ">
+                <input id="zip" type="text" class="form-control" placeholder="*Zip Code"> </div>
+              <div class="form-group col-md-4 ">
+                <input id="acres" type="text" class="form-control" placeholder="*Acres"> </div>
+            </div>
+             <div class="row">
+                <div class="col-md-4">
+                  <p>Type</p>
+                  <select id="type_dropdown" onChange="editMenus()">
+                    <option value="Farm">Farm</option>
+                    <option value="Garden">Garden</option>
+                    <option value="Orchard">Orchard</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <p>Animal</p>
+                  <select id="animal_dropdown">
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <p>Crop</p>
+                  <select id="crop_dropdown">
+                  </select>
+                </div>
+              </div>
+              <br>
+              <div class="row">
+                <div class="col-md-4">
+                  <p>Public</p>
+                  <select id="public_dropdown">
+                    <option value="0">False</option>
+                    <option value="1">True</option>
+                  </select>
+                  </div>
+                <div class="col-md-4">
+                  <p>Commercial</p>
+                  <select id="commercial_dropdown">
+                    <option value="0">False</option>
+                    <option value="1">True</option>
+                  </select>
+                </div>
+              </div>
+            <br>
+            <button type="submit" class="btn btn-primary" onclick="addToDB()">Create Account</button>
+            <button class="btn-secondary ml-2 text-white btn" onclick="logout()">Cancel </button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <img src="https://pingendo.com/site-assets/Pingendo_logo_big.png" class="d-block" alt="Pingendo logo" height="16">
+  <pingendo onclick="window.open('https://pingendo.com/', '_blank')" style="cursor:pointer;position: fixed;bottom: 10px;right:10px;padding:4px;background-color: #00b0eb;border-radius: 8px; width:180px;display:flex;flex-direction:row;align-items:center;justify-content:center;font-size:14px;color:white">Made with Pingendo&nbsp;&nbsp;
+    <img src="https://pingendo.com/site-assets/Pingendo_logo_big.png" class="d-block" alt="Pingendo logo" height="16">
+  </pingendo>
+</body>
+
+</html>
