@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css">
+        <link rel="stylesheet" href="https://v40.pingendo.com/assets/4.0.0/default/theme.css" type="text/css">
+        <script src="webapp/js/md5.min.js"></script>
+        <script src="webapp/js/Cookies.js"></script>
+        <script>
+
+
+            function checkLogin() {
+                console.log("Logging in");
+
+                email = document.getElementById("email").value;
+                pass = document.getElementById("password").value;
+                pass = md5(pass);
+                let payload = {
+                    "email": email,
+                    "password": pass
+                }
+
+                console.log(payload);
+
+
+                var xhr = new XMLHttpRequest();
+                    xhr.onload = () => {
+                        var data = xhr.responseText;
+                        console.log("This is data" + data);
+
+                        if (data != "0" && data == 'Owner') {
+                            Cookies.set("type", data);
+                            Cookies.set("email", email);
+
+                            window.location.replace("webapp/loginhome.html");
+                            console.log("Next page");
+                        }
+
+                        else if (data != "0" && data == "Admin") {
+                            Cookies.set("type", data);
+                            Cookies.set("email", email);
+
+
+                            window.location.replace("admin/adminhome.html");
+
+                            console.log("Next page");
+                        }
+                        else if (data != "0" && data == "Visitor") {
+                            Cookies.set("type", data);
+                            Cookies.set("email", email);
+
+
+                            window.location.replace("webapp/visitorHome.html");
+
+                            console.log("Next page");
+
+                        }
+                        else{
+                            console.log("Login failed")
+                            alert("Invalid email password combination   ")
+                        }
+                    }
+
+                xhr.open("POST", "http://localhost:3000/login", true);
+                xhr.setRequestHeader("Content-Type", 'application/json');
+                xhr.send(JSON.stringify(payload));
+            }
+        </script>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-md bg-primary navbar-dark">
+            <div class="container">
+                <a class="navbar-brand" href="#"> <i class="fa d-inline fa-lg fa-cloud"></i> <b>Atlanta Farm Orchard Garden Database</b> </a>
+                <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbar2SupportedContent" aria-controls="navbar2SupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </nav>
+        <div class="py-5">
+            <div class="container">
+                <div class="row justify-content-lg-center py-2">
+                    <div class="col-md-6">
+                        <div style="font-size: 45px">ATL Gardens, Farms, &amp; Orchards</div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+</div>
+                            <div class="form-group col-md-6">
+</div>
+                        </div>
+
+                            <div class="form-group">
+                                <input id="email" type="email" class="form-control" placeholder="*Enter email">
+                            </div>
+                            <div class="form-group">
+                                <input id="password" type="password" class="form-control" placeholder="*Enter password">
+                            </div>
+
+                                <button class="btn btn-primary text-white" onclick="checkLogin()">
+                                    Log In
+                                </button>
+                    </div>
+                </div>
+            </div>
+            <div class="py-2 text-sm-center">
+                <a href="visitorsignup.html"> </a>
+                <a href="">
+                    <button type="submit" class="btn btn-primary" onclick="storeinfo()">
+                        <a href="webapp/ownersignup.html" class="text-white">New Owner Registration</a>
+                    </button>
+                </a>
+                <button type="submit" class="btn btn-primary ml-3 text-white">
+                    <a href="webapp/visitorsignup.html" class="text-white">New Visitor Registration</a>
+                </button>
+                <a href="">  </a>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+     
+    </body>
+</html>
